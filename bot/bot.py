@@ -12,6 +12,7 @@ class Bot(commands.Bot):
     async def setup_hook(self):
         await self.load_extension("ext.general")
         await self.load_extension("ext.moderation")
+        await self.load_extension("ext.meta")
 
     async def on_ready(self):
         print(f"Logged in as {self.user}")
