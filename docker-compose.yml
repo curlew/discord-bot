@@ -1,0 +1,19 @@
+services:
+  db:
+    container_name: bot-db
+    build: ./db
+    volumes:
+      - ./data:/var/lib/postgresql/data
+    env_file:
+      - .env
+    restart: on-failure
+
+  bot:
+    container_name: bot-app
+    build: ./bot
+    command: bash -c "while ! nc -z db ${POSTGRES_PORT} > /dev/null; \
+      do echo Waiting for database...; sleep 3s; done;               \
+      python bot.py"
+    env_file:
+      - .env
+    restart: on-failure
