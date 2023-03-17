@@ -1,11 +1,13 @@
 import asyncio
-import os
+from os import getenv
+import asyncpg
 import discord
 from discord.ext import commands
 
 class Bot(commands.Bot):
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, db_pool: asyncpg.Pool, **kwargs):
         super().__init__(*args, **kwargs)
+        self.db_pool = db_pool
 
     async def setup_hook(self):
         await self.load_extension("ext.general")
@@ -31,8 +33,12 @@ async def main():
     intents.members = True
     intents.message_content = True
 
-    async with Bot(commands.when_mentioned_or("-"), intents=intents) as bot:
-        await bot.start(os.getenv("TOKEN"))
+    db_uri = (f"postgres://{getenv('POSTGRES_USER')}:{getenv('POSTGRES_PASSWORD')}"
+              f"@{getenv('POSTGRES_HOST')}:{getenv('POSTGRES_PORT')}/{getenv('POSTGRES_DB')}")
+
+    async with asyncpg.create_pool(db_uri) as db_pool:
+        async with Bot(commands.when_mentioned_or("-"), db_pool=db_pool, intents=intents) as bot:
+            await bot.start(getenv("TOKEN"))
 
 if __name__ == "__main__":
     asyncio.run(main())
