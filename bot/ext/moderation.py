@@ -14,43 +14,56 @@ class Moderation(commands.Cog):
             autorole = discord.utils.get(guild.roles, id=autorole_id)
             await member.add_roles(autorole)
 
-    @commands.command(help="Sets a role to be automatically assigned to new members")
+    @commands.hybrid_group(name="autorole", help="Sets a role to be automatically assigned to new members", invoke_without_command=True)
+    async def autorole(self, ctx: commands.Context):
+        await ctx.send("Usage: `autorole enable/disable/status`") # TODO:
+
+    @autorole.command(name="enable")
     @commands.guild_only()
     @commands.has_permissions(manage_roles=True)
     @commands.bot_has_permissions(manage_roles=True)
-    async def autorole(self, ctx,
-                       option: Literal["enable", "disable", "status"]
-                       = commands.param(description="enable/disable/status"),
-                       role: discord.Role = None):
+    async def autorole_enable(self, ctx: commands.Context, role: discord.Role):
         e = discord.Embed(color=discord.Color.green())
+        if role is None:
+            raise commands.MissingRequiredArgument(self.autorole.params["role"])
+        query = """INSERT INTO guilds (id, autorole_id) VALUES ($1, $2)
+                   ON CONFLICT (id) DO UPDATE SET autorole_id = EXCLUDED.autorole_id"""
+        await self.bot.db_pool.execute(query, ctx.guild.id, role.id)
+        e.title = f"Set autorole to *{role.name}*"
+        await ctx.send(embed=e)
 
-        if option == "enable":
-            if role is None:
-                raise commands.MissingRequiredArgument(self.autorole.params["role"])
-            query = """INSERT INTO guilds (id, autorole_id) VALUES ($1, $2)
-                       ON CONFLICT (id) DO UPDATE SET autorole_id = EXCLUDED.autorole_id"""
-            await self.bot.db_pool.execute(query, ctx.guild.id, role.id)
-            e.title = f"Set autorole to *{role.name}*"
-        elif option == "disable":
-            query = """INSERT INTO guilds (id, autorole_id) VALUES ($1, NULL)
-                       ON CONFLICT (id) DO UPDATE SET autorole_id = NULL"""
-            await self.bot.db_pool.execute(query, ctx.guild.id)
-            e.title = "Disabled autorole"
-        elif option == "status":
-            query = "SELECT autorole_id FROM guilds WHERE id = $1"
-            current_autorole_id = await self.bot.db_pool.fetchval(query, ctx.guild.id)
-            if current_autorole_id is None:
-                e.title = f"Autorole is currently disabled"
-            else:
-                current_autorole = discord.utils.get(ctx.guild.roles, id=current_autorole_id)
-                e.title = f"The current autorole is *{current_autorole}*"
+    @autorole.command(name="disable")
+    @commands.guild_only()
+    @commands.has_permissions(manage_roles=True)
+    @commands.bot_has_permissions(manage_roles=True)
+    async def autorole_disable(self, ctx: commands.Context):
+        e = discord.Embed(color=discord.Color.green())
+        query = """INSERT INTO guilds (id, autorole_id) VALUES ($1, NULL)
+                   ON CONFLICT (id) DO UPDATE SET autorole_id = NULL"""
+        await self.bot.db_pool.execute(query, ctx.guild.id)
+        e.title = "Disabled autorole"
+        await ctx.send(embed=e)
 
-        await ctx.channel.send(embed=e)
+    @autorole.command(name="status")
+    @commands.guild_only()
+    @commands.has_permissions(manage_roles=True)
+    @commands.bot_has_permissions(manage_roles=True)
+    async def autorole_status(self, ctx: commands.Context):
+        e = discord.Embed(color=discord.Color.green())
+        query = "SELECT autorole_id FROM guilds WHERE id = $1"
+        current_autorole_id = await self.bot.db_pool.fetchval(query, ctx.guild.id)
+        if current_autorole_id is None:
+            e.title = f"Autorole is currently disabled"
+        else:
+            current_autorole = discord.utils.get(ctx.guild.roles, id=current_autorole_id)
+            e.title = f"The current autorole is *{current_autorole}*"
+        await ctx.send(embed=e)
 
-    @commands.command(help="Kicks a user")
+    @commands.hybrid_command(help="Kicks a user")
+    @commands.guild_only()
     @commands.has_permissions(kick_members=True)
     @commands.bot_has_permissions(kick_members=True)
-    async def kick(self, ctx, member: discord.Member, *, reason=None):
+    async def kick(self, ctx: commands.Context, member: discord.Member, *, reason=None):
         if ctx.author != ctx.guild.owner and ctx.author.top_role <= member.top_role:
             raise commands.BadArgument("Your top role is not above this member's top role.")
 
@@ -58,12 +71,13 @@ class Moderation(commands.Cog):
         e = discord.Embed(title=f":white_check_mark: **Kicked {member}**", color=discord.Colour.green())
         if reason is not None:
             e.description = f"**Reason:** {reason}"
-        await ctx.channel.send(embed=e)
+        await ctx.send(embed=e)
 
-    @commands.command(help="Bans a user")
+    @commands.hybrid_command(help="Bans a user")
+    @commands.guild_only()
     @commands.has_permissions(ban_members=True)
     @commands.bot_has_permissions(ban_members=True)
-    async def ban(self, ctx, member: Union[discord.Member, discord.User], *, reason=None):
+    async def ban(self, ctx: commands.Context, member: Union[discord.Member, discord.User], *, reason=None):
         if ctx.author != ctx.guild.owner and ctx.author.top_role <= member.top_role:
             raise commands.BadArgument("Your top role is not above this member's top role.")
 
@@ -71,12 +85,13 @@ class Moderation(commands.Cog):
         e = discord.Embed(title=f":white_check_mark: **Banned {member}**", color=discord.Colour.green())
         if reason is not None:
             e.description = f"**Reason:** {reason}"
-        await ctx.channel.send(embed=e)
+        await ctx.send(embed=e)
 
-    @commands.command(help="Unbans a user")
+    @commands.hybrid_command(help="Unbans a user")
+    @commands.guild_only()
     @commands.has_permissions(ban_members=True)
     @commands.bot_has_permissions(ban_members=True)
-    async def unban(self, ctx, user: discord.User, *, reason=None):
+    async def unban(self, ctx: commands.Context, user: discord.User, *, reason=None):
         try:
             await ctx.guild.unban(user=user, reason=reason)
         except discord.NotFound:
@@ -85,7 +100,7 @@ class Moderation(commands.Cog):
         e = discord.Embed(title=f":white_check_mark: **Unbanned {user}**", color=discord.Colour.green())
         if reason is not None:
             e.description = f"**Reason:** {reason}"
-        await ctx.channel.send(embed=e)
+        await ctx.send(embed=e)
 
 async def setup(bot):
     await bot.add_cog(Moderation(bot))

@@ -7,7 +7,7 @@ class General(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
-    @commands.command()
+    @commands.hybrid_command()
     async def userinfo(self, ctx: commands.Context,
                        user: Union[discord.Member, discord.User] = None):
         if user is None:
@@ -39,7 +39,7 @@ class General(commands.Cog):
             if user.premium_since:
                 e.add_field(inline=True, name="**Boosting since**", value=format_datetime(user.premium_since))
 
-        await ctx.channel.send(embed=e)
+        await ctx.send(embed=e)
 
 async def setup(bot):
     await bot.add_cog(General(bot))
