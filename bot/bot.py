@@ -4,7 +4,9 @@ import asyncpg
 import discord
 from discord.ext import commands
 
+
 class Bot(commands.Bot):
+
     def __init__(self, *args, db_pool: asyncpg.Pool, **kwargs):
         super().__init__(*args, **kwargs)
         self.db_pool = db_pool
@@ -27,6 +29,7 @@ class Bot(commands.Bot):
             e.title = str(error)
         await ctx.channel.send(embed=e)
 
+
 async def main():
     discord.utils.setup_logging()
 
@@ -34,12 +37,17 @@ async def main():
     intents.members = True
     intents.message_content = True
 
-    db_uri = (f"postgres://{getenv('POSTGRES_USER')}:{getenv('POSTGRES_PASSWORD')}"
-              f"@{getenv('POSTGRES_HOST')}:{getenv('POSTGRES_PORT')}/{getenv('POSTGRES_DB')}")
+    db_uri = (
+        f"postgres://{getenv('POSTGRES_USER')}:{getenv('POSTGRES_PASSWORD')}"
+        f"@{getenv('POSTGRES_HOST')}:{getenv('POSTGRES_PORT')}/{getenv('POSTGRES_DB')}"
+    )
 
     async with asyncpg.create_pool(db_uri) as db_pool:
-        async with Bot(commands.when_mentioned_or("-"), db_pool=db_pool, intents=intents) as bot:
+        async with Bot(commands.when_mentioned_or("-"),
+                       db_pool=db_pool,
+                       intents=intents) as bot:
             await bot.start(getenv("TOKEN"))
+
 
 if __name__ == "__main__":
     asyncio.run(main())
