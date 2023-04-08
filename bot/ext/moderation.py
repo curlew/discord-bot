@@ -23,12 +23,14 @@ class Moderation(commands.Cog):
     @commands.has_permissions(manage_roles=True)
     @commands.bot_has_permissions(manage_roles=True)
     async def autorole_enable(self, ctx: commands.Context, role: discord.Role):
-        e = discord.Embed(color=discord.Color.green())
-        if role is None:
-            raise commands.MissingRequiredArgument(self.autorole.params["role"])
+        if role.is_default():
+            raise commands.BadArgument("Role cannot be @everyone.")
+        if ctx.author.top_role < role and ctx.author != ctx.guild.owner:
+            raise commands.BadArgument("Your top role must be above the desired autorole.")
         query = """INSERT INTO guilds (id, autorole_id) VALUES ($1, $2)
                    ON CONFLICT (id) DO UPDATE SET autorole_id = EXCLUDED.autorole_id"""
         await self.bot.db_pool.execute(query, ctx.guild.id, role.id)
+        e = discord.Embed(color=discord.Color.green())
         e.title = f"Set autorole to *{role.name}*"
         await ctx.send(embed=e)
 
