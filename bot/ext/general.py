@@ -1,7 +1,7 @@
 from typing import Union
-from datetime import datetime
 import discord
 from discord.ext import commands
+from utils import format_datetime
 
 class General(commands.Cog):
     def __init__(self, bot):
@@ -13,18 +13,14 @@ class General(commands.Cog):
         if user is None:
             user = ctx.author
 
-        def format_datetime(dt: datetime) -> str:
-            return dt.strftime("%Y-%m-%d %H:%M:%S %Z")
-
         e = discord.Embed(title=f"**{user}**", color=discord.Color.dark_blue())
         e.set_thumbnail(url=user.display_avatar)
+        e.set_footer(text=f"ID: {user.id}")
         if user.banner:
             e.set_image(url=user.banner)
         e.add_field(inline=True, name="**Created**", value=format_datetime(user.created_at))
-        e.add_field(inline=True, name="**ID**", value=user.id)
 
-        flags = ", ".join(flag.name for flag in user.public_flags.all())
-        if flags:
+        if flags := ", ".join(flag.name for flag in user.public_flags.all()):
             # TODO:
             e.add_field(inline=True, name="**Badges**", value=flags)
 
@@ -32,12 +28,31 @@ class General(commands.Cog):
             e.add_field(inline=True, name="**Joined**", value=format_datetime(user.joined_at))
 
             # skip @everyone (roles[0])
-            roles = ", ".join(role.name for role in user.roles[1:])
-            if roles:
+            if roles := ", ".join(role.name for role in user.roles[1:]):
                 e.add_field(inline=True, name="**Roles**", value=roles)
 
             if user.premium_since:
                 e.add_field(inline=True, name="**Boosting since**", value=format_datetime(user.premium_since))
+
+        await ctx.send(embed=e)
+
+    @commands.hybrid_command(aliases=["guildinfo"])
+    async def serverinfo(self, ctx: commands.Context):
+        guild = ctx.guild
+
+        e = discord.Embed(title=f"**{guild.name}**", color=discord.Color.dark_blue())
+        e.set_thumbnail(url=guild.icon)
+        e.set_footer(text=f"ID: {guild.id}")
+        if guild.description:
+            e.description = guild.description
+
+        e.add_field(inline=True, name="**Owner**", value=str(guild.owner))
+        e.add_field(inline=True, name="**Created**", value=format_datetime(guild.created_at))
+        e.add_field(inline=True, name="**Members**", value=guild.member_count)
+        if guild.premium_subscription_count != 0:
+            e.add_field(inline=True, name="**Boosts**", value=guild.premium_subscription_count)
+        if emojis := " ".join(str(emoji) for emoji in guild.emojis):
+            e.add_field(inline=True, name="**Emojis**", value=emojis)
 
         await ctx.send(embed=e)
 
