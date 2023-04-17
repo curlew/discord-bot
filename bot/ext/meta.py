@@ -10,7 +10,7 @@ class Meta(commands.Cog):
     @commands.command(hidden=True)
     @commands.is_owner()
     async def sync(self, ctx, guild: discord.Object = None):
-        """Sync application commands."""
+        """Syncs application commands"""
         if guild is not None:
             ctx.bot.tree.copy_global_to(guild=guild)
             synced = await ctx.bot.tree.sync(guild=guild)

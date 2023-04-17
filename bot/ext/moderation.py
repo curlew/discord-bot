@@ -18,13 +18,13 @@ class Moderation(commands.Cog):
             await member.add_roles(autorole)
 
     @commands.hybrid_group(name="autorole",
-                           help="Automatically assigns a role to new members",
                            fallback="get",
                            invoke_without_command=True)
     @commands.guild_only()
     @commands.has_permissions(manage_roles=True)
     @commands.bot_has_permissions(manage_roles=True)
     async def autorole(self, ctx: commands.Context):
+        """Shows the current autorole"""
         query = "SELECT autorole_id FROM guilds WHERE id = $1"
         current_autorole_id = await self.bot.db_pool.fetchval(
             query, ctx.guild.id)
@@ -42,6 +42,7 @@ class Moderation(commands.Cog):
     @commands.has_permissions(manage_roles=True)
     @commands.bot_has_permissions(manage_roles=True)
     async def autorole_set(self, ctx: commands.Context, role: discord.Role):
+        """Automatically assigns a role to new members"""
         if role.is_default():
             raise commands.BadArgument("Role cannot be @everyone.")
         if ctx.author.top_role < role and ctx.author != ctx.guild.owner:
@@ -59,13 +60,14 @@ class Moderation(commands.Cog):
     @commands.has_permissions(manage_roles=True)
     @commands.bot_has_permissions(manage_roles=True)
     async def autorole_off(self, ctx: commands.Context):
+        """Disables the autorole"""
         query = """INSERT INTO guilds (id, autorole_id) VALUES ($1, NULL)
                    ON CONFLICT (id) DO UPDATE SET autorole_id = NULL"""
         await self.bot.db_pool.execute(query, ctx.guild.id)
         await ctx.send(embed=discord.Embed(title="Disabled autorole",
                                            color=discord.Color.green()))
 
-    @commands.hybrid_command(help="Kicks a user")
+    @commands.hybrid_command()
     @commands.guild_only()
     @commands.has_permissions(kick_members=True)
     @commands.bot_has_permissions(kick_members=True)
@@ -74,6 +76,7 @@ class Moderation(commands.Cog):
                    member: discord.Member,
                    *,
                    reason=None):
+        """Kicks a user"""
         if ctx.author != ctx.guild.owner and ctx.author.top_role <= member.top_role:
             raise commands.BadArgument(
                 "Your top role is not above this member's top role.")
@@ -84,7 +87,7 @@ class Moderation(commands.Cog):
             color=discord.Color.green(),
             description=f"**Reason:** {reason}" if reason else None))
 
-    @commands.hybrid_command(help="Bans a user")
+    @commands.hybrid_command()
     @commands.guild_only()
     @commands.has_permissions(ban_members=True)
     @commands.bot_has_permissions(ban_members=True)
@@ -93,6 +96,7 @@ class Moderation(commands.Cog):
                   member: Union[discord.Member, discord.User],
                   *,
                   reason=None):
+        """Bans a user"""
         if ctx.author != ctx.guild.owner and ctx.author.top_role <= member.top_role:
             raise commands.BadArgument(
                 "Your top role is not above this member's top role.")
@@ -103,7 +107,7 @@ class Moderation(commands.Cog):
             color=discord.Color.green(),
             description=f"**Reason:** {reason}" if reason else None))
 
-    @commands.hybrid_command(help="Unbans a user")
+    @commands.hybrid_command()
     @commands.guild_only()
     @commands.has_permissions(ban_members=True)
     @commands.bot_has_permissions(ban_members=True)
@@ -112,6 +116,7 @@ class Moderation(commands.Cog):
                     user: discord.User,
                     *,
                     reason=None):
+        """Unbans a user"""
         try:
             await ctx.guild.unban(user=user, reason=reason)
         except discord.NotFound:
