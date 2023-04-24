@@ -19,7 +19,7 @@ class Bot(commands.Bot):
     async def on_ready(self):
         print(f"Logged in as {self.user}")
 
-    async def on_command_error(self, ctx, error: commands.CommandError):
+    async def on_command_error(self, ctx, error: commands.CommandError, /):
         e = discord.Embed(color=discord.Colour.red())
         if isinstance(error, commands.MissingPermissions):
             e.title = "You are missing permission(s) required to use this command."
