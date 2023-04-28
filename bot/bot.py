@@ -45,6 +45,7 @@ async def main():
     async with asyncpg.create_pool(db_uri) as db_pool:
         async with Bot(commands.when_mentioned_or("-"),
                        db_pool=db_pool,
+                       activity=discord.Game(name="-help"),
                        intents=intents) as bot:
             await bot.start(getenv("TOKEN"))
 
