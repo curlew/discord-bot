@@ -12,13 +12,12 @@ class Meta(commands.Cog):
     async def sync(self, ctx, guild: discord.Object = None):
         """Syncs application commands"""
         if guild is not None:
-            ctx.bot.tree.copy_global_to(guild=guild)
-            synced = await ctx.bot.tree.sync(guild=guild)
+            ctx.bot.tree.clear_commands(guild=guild)
+            await ctx.bot.tree.sync(guild=guild)
         else:
-            synced = await ctx.bot.tree.sync()
+            await ctx.bot.tree.sync()
         await ctx.reply(
-            (f"Synced {len(synced)} command(s)"
-             f" {'globally' if guild is None else f'to {guild.id}'}."))
+            f"Synced commands {'globally' if guild is None else f'to {guild.id}'}.")
 
 
 async def setup(bot):
