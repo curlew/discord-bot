@@ -3,6 +3,7 @@
 # Discord Bot
 
 [![Pylint](https://img.shields.io/github/actions/workflow/status/curlew/discord-bot/pylint.yml?label=pylint&style=flat-square&logo=github)](https://github.com/curlew/discord-bot/actions/workflows/pylint.yml)
+![Latest tag](https://img.shields.io/github/v/tag/curlew/discord-bot?logo=github&style=flat-square)
 [![License](https://img.shields.io/github/license/curlew/discord-bot?style=flat-square)](https://github.com/curlew/discord-bot/blob/main/LICENSE)
 
 Container-based Discord bot using discord.py and PostgreSQL.
