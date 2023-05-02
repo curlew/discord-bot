@@ -4,6 +4,7 @@ from discord.ext import commands
 
 
 class Moderation(commands.Cog):
+    """Server moderation commands."""
 
     def __init__(self, bot):
         self.bot = bot
@@ -24,7 +25,7 @@ class Moderation(commands.Cog):
     @commands.has_permissions(manage_roles=True)
     @commands.bot_has_permissions(manage_roles=True)
     async def autorole(self, ctx: commands.Context):
-        """Shows the current autorole"""
+        """Show the current autorole"""
         query = "SELECT autorole_id FROM guilds WHERE id = $1"
         current_autorole_id = await self.bot.db_pool.fetchval(
             query, ctx.guild.id)
@@ -42,7 +43,7 @@ class Moderation(commands.Cog):
     @commands.has_permissions(manage_roles=True)
     @commands.bot_has_permissions(manage_roles=True)
     async def autorole_set(self, ctx: commands.Context, role: discord.Role):
-        """Automatically assigns a role to new members"""
+        """Automatically assign a role to new members"""
         if role.is_default():
             raise commands.BadArgument("Role cannot be @everyone.")
         if ctx.author.top_role < role and ctx.author != ctx.guild.owner:
@@ -60,7 +61,7 @@ class Moderation(commands.Cog):
     @commands.has_permissions(manage_roles=True)
     @commands.bot_has_permissions(manage_roles=True)
     async def autorole_off(self, ctx: commands.Context):
-        """Disables the autorole"""
+        """Disable the autorole"""
         query = """INSERT INTO guilds (id, autorole_id) VALUES ($1, NULL)
                    ON CONFLICT (id) DO UPDATE SET autorole_id = NULL"""
         await self.bot.db_pool.execute(query, ctx.guild.id)
@@ -76,7 +77,7 @@ class Moderation(commands.Cog):
                    member: discord.Member,
                    *,
                    reason=None):
-        """Kicks a user"""
+        """Kick a user"""
         if ctx.author != ctx.guild.owner and ctx.author.top_role <= member.top_role:
             raise commands.BadArgument(
                 "Your top role is not above this member's top role.")
@@ -96,7 +97,7 @@ class Moderation(commands.Cog):
                   member: Union[discord.Member, discord.User],
                   *,
                   reason=None):
-        """Bans a user"""
+        """Ban a user"""
         if ctx.author != ctx.guild.owner and ctx.author.top_role <= member.top_role:
             raise commands.BadArgument(
                 "Your top role is not above this member's top role.")
@@ -116,7 +117,7 @@ class Moderation(commands.Cog):
                     user: discord.User,
                     *,
                     reason=None):
-        """Unbans a user"""
+        """Unban a user"""
         try:
             await ctx.guild.unban(user=user, reason=reason)
         except discord.NotFound:

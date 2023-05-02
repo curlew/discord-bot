@@ -5,6 +5,7 @@ from utils import format_datetime
 
 
 class General(commands.Cog):
+    """General commands."""
 
     def __init__(self, bot):
         self.bot = bot
@@ -14,7 +15,7 @@ class General(commands.Cog):
                        ctx: commands.Context,
                        user: Union[discord.Member,
                                    discord.User] = commands.Author):
-        """Shows information about a user"""
+        """Show information about a user"""
         e = discord.Embed(title=f"**{user}**", color=discord.Color.dark_blue())
         e.set_thumbnail(url=user.display_avatar)
         e.set_footer(text=f"ID: {user.id}")
@@ -47,7 +48,7 @@ class General(commands.Cog):
     @commands.hybrid_command(aliases=["guildinfo"])
     @commands.guild_only()
     async def serverinfo(self, ctx: commands.Context):
-        """Shows information about the server"""
+        """Show information about the server"""
         guild = ctx.guild
 
         e = discord.Embed(title=f"**{guild.name}**",
