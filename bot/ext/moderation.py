@@ -70,6 +70,28 @@ class Moderation(commands.Cog):
 
     @commands.hybrid_command()
     @commands.guild_only()
+    @commands.has_permissions(manage_messages=True)
+    @commands.bot_has_permissions(manage_messages=True)
+    async def purge(self,
+                    ctx: commands.Context,
+                    number: commands.Range[int, 1, 50] = commands.parameter(
+                        description="How many messages to delete (1-50)")):
+        """Bulk delete messages"""
+        if ctx.interaction is not None:
+            # invoked as an app command
+            await ctx.interaction.response.defer()
+            # don't delete the command message as the app command is required to respond to it
+            before = await ctx.interaction.original_response()
+            await ctx.channel.purge(limit=number, before=before)
+        else:
+            # invoked as a text command
+            # + 1 for deleting the command message
+            await ctx.channel.purge(limit=number + 1)
+
+        await ctx.send(f"Purged {number} messages.")
+
+    @commands.hybrid_command()
+    @commands.guild_only()
     @commands.has_permissions(kick_members=True)
     @commands.bot_has_permissions(kick_members=True)
     async def kick(self,
