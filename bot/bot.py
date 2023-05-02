@@ -1,9 +1,11 @@
 import asyncio
+import logging
 from os import getenv
 import asyncpg
 import discord
 from discord.ext import commands
 
+logger = logging.getLogger(__name__)
 
 class Bot(commands.Bot):
 
@@ -17,7 +19,7 @@ class Bot(commands.Bot):
         await self.load_extension("ext.meta")
 
     async def on_ready(self):
-        print(f"Logged in as {self.user}")
+        logger.info("Ready. ID: %d", self.user.id)
 
     async def on_command_error(self, ctx, error: commands.CommandError, /):
         e = discord.Embed(color=discord.Colour.red())
@@ -27,6 +29,7 @@ class Bot(commands.Bot):
             e.title = "I am missing permission(s) required to do this."
         else:
             e.title = str(error)
+            logger.warning("Unhandled error from command '%s': %s", ctx.message.content, str(error))
         await ctx.channel.send(embed=e)
 
 
