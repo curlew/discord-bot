@@ -1,5 +1,8 @@
+import logging
 import discord
 from discord.ext import commands
+
+logger = logging.getLogger(__name__)
 
 
 class Meta(commands.Cog):
@@ -17,9 +20,9 @@ class Meta(commands.Cog):
             await ctx.bot.tree.sync(guild=guild)
         else:
             await ctx.bot.tree.sync()
-        await ctx.reply(
-            f"Synced commands {'globally' if guild is None else f'to {guild.id}'}."
-        )
+        message = f"Synced commands {'globally' if guild is None else f'to {guild.id}'}."
+        await ctx.reply(message)
+        logger.info(message)
 
 
 async def setup(bot):
