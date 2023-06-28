@@ -1,9 +1,12 @@
-FROM python:3
+# syntax=docker/dockerfile:1
+
+FROM python:3.8-slim-bookworm
 
 WORKDIR /bot
 
 COPY ./requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
-RUN apt-get update && apt-get install -y netcat
 
 COPY . .
+
+CMD ["python", "bot.py"]

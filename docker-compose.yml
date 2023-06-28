@@ -6,14 +6,20 @@ services:
       - ./data:/var/lib/postgresql/data
     env_file:
       - .env
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -d ${POSTGRES_DB} -U ${POSTGRES_USER}"]
+      interval: 10s
+      timeout: 5s
+      start_period: 20s
+      retries: 5
     restart: on-failure
 
   bot:
     container_name: bot-app
     build: ./bot
-    command: bash -c "while ! nc -z db ${POSTGRES_PORT} > /dev/null; \
-      do echo Waiting for database...; sleep 3s; done;               \
-      python bot.py"
     env_file:
       - .env
+    depends_on:
+      db:
+        condition: service_healthy
     restart: on-failure
