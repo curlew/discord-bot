@@ -1,6 +1,7 @@
 import asyncio
 import logging
 from os import getenv
+from signal import SIGTERM
 import asyncpg
 import discord
 from discord.ext import commands
@@ -50,6 +51,7 @@ async def main():
                        db_pool=db_pool,
                        activity=discord.Game(name="-help"),
                        intents=intents) as bot:
+            bot.loop.add_signal_handler(SIGTERM, lambda: asyncio.ensure_future(bot.close()))
             await bot.start(getenv("TOKEN"))
 
 
