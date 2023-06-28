@@ -21,6 +21,6 @@ Container-based Discord bot using discord.py and PostgreSQL.
     ```
 5. Build and start the bot:
     ```bash
-    sudo docker compose --env-file .env up --build
+    sudo docker compose up --build
     ```
 6. Register the bot's application commands after adding it to a server, with the `-sync` command. See `-help sync`.
