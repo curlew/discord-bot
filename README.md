@@ -16,11 +16,11 @@ Container-based Discord bot using discord.py and PostgreSQL.
 3. Add a bot user to the application. Under *Privileged Gateway Intents*, enable **server members intent** and **message content intent**.
 4. Configure secrets:
     ```bash
-    cp .env-sample .env
-    vim .env # set TOKEN and POSTGRES_PASSWORD
+    $ cp .env-sample .env
+    $ vim .env # set TOKEN and POSTGRES_PASSWORD
     ```
 5. Build and start the bot:
     ```bash
-    sudo docker compose up --build
+    $ docker compose up -d
     ```
 6. Register the bot's application commands after adding it to a server, with the `-sync` command. See `-help sync`.
