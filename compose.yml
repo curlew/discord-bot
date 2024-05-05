@@ -1,0 +1,27 @@
+services:
+  bot:
+    container_name: discord-bot
+    image: ghcr.io/curlew/discord-bot:latest
+    build: ./bot
+    restart: always
+    env_file:
+      - .env
+    depends_on:
+      db:
+        condition: service_healthy
+
+  db:
+    container_name: discord-bot-db
+    image: postgres:alpine3.18
+    restart: always
+    volumes:
+      - ./data:/var/lib/postgresql/data
+      - ./db/init.sql:/docker-entrypoint-initdb.d/init.sql
+    env_file:
+      - .env
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -d ${POSTGRES_DB} -U ${POSTGRES_USER}"]
+      interval: 10s
+      timeout: 5s
+      start_period: 20s
+      retries: 5
