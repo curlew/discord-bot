@@ -24,3 +24,36 @@ Container-based Discord bot using discord.py and PostgreSQL.
     $ docker compose up -d
     ```
 6. Register the bot's application commands after adding it to a server, with the `-sync` command. See `-help sync`.
+
+## Commands
+
+Parameters in square brackets are optional.
+Some app commands (slash commands) vary slightly from their text command equivalents.
+The prefix for text commands is `-` (e.g. `-help`).
+
+### General
+
+| Command             | Description                                        |
+|---------------------|----------------------------------------------------|
+| `-serverinfo`       | Get information about the server.                  |
+| `-userinfo [@user]` | Get information about `@user` (default: yourself). |
+
+### Moderation
+
+| Command                 | Description                                              |
+|-------------------------|----------------------------------------------------------|
+| `-autorole`             | Show the server's current autorole.                      |
+| `-autorole set @role`   | Automatically assign `@role` to new server members.      |
+| `-autorole off`         | Disable the server's autorole.                           |
+| `-ban @user [reason]`   | Ban `@user`.                                             |
+| `-kick @user [reason]`  | Kick `@user`.                                            |
+| `-purge number`         | Bulk delete the newest `number` messages in the channel. |
+| `-unban @user [reason]` | Unban `@user`.                                           |
+
+### Meta
+
+These commands are only available to the bot's owner.
+
+| Command         | Description                                              |
+|-----------------|----------------------------------------------------------|
+| `-sync [guild]` | Sync application commands globally (or only to `guild`). |
