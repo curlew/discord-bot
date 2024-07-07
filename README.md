@@ -18,6 +18,7 @@ Container-based Discord bot using discord.py and PostgreSQL.
     ```bash
     $ cp .env-sample .env
     $ vim .env # set TOKEN and POSTGRES_PASSWORD
+    $ chmod 600 .env
     ```
 5. Build and start the bot:
     ```bash
