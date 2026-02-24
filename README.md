@@ -38,6 +38,7 @@ The prefix for text commands is `-` (e.g. `-help`).
 |---------------------|----------------------------------------------------|
 | `-serverinfo`       | Get information about the server.                  |
 | `-userinfo [@user]` | Get information about `@user` (default: yourself). |
+| `-uptime`           | Show how long the bot has been online for.         |
 
 ### Moderation
 

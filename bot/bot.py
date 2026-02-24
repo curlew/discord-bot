@@ -1,4 +1,5 @@
 import asyncio
+import datetime
 import logging
 from os import getenv
 from signal import SIGTERM
@@ -13,6 +14,7 @@ class Bot(commands.Bot):
     def __init__(self, *args, db_pool: asyncpg.Pool, **kwargs):
         super().__init__(*args, **kwargs)
         self.db_pool = db_pool
+        self.start_time = None
 
     async def setup_hook(self):
         await self.load_extension("ext.general")
@@ -20,7 +22,9 @@ class Bot(commands.Bot):
         await self.load_extension("ext.meta")
 
     async def on_ready(self):
-        logger.info("Ready. ID: %d", self.user.id)
+        if self.start_time is None:
+            self.start_time = datetime.datetime.now(datetime.timezone.utc)
+        logger.info("Ready. ID: %d. Started at %s", self.user.id, self.start_time)
 
     async def on_command_error(self, ctx, error: commands.CommandError, /):
         e = discord.Embed(color=discord.Colour.red())

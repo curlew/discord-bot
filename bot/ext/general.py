@@ -1,7 +1,8 @@
 from typing import Union
+import datetime
 import discord
 from discord.ext import commands
-from utils import format_datetime
+from utils import format_datetime, format_timedelta
 
 
 class General(commands.Cog):
@@ -70,6 +71,17 @@ class General(commands.Cog):
         if emojis := " ".join(str(emoji) for emoji in guild.emojis):
             e.add_field(inline=True, name="**Emojis**", value=emojis)
 
+        await ctx.send(embed=e)
+
+    @commands.hybrid_command()
+    async def uptime(self, ctx: commands.Context):
+        """Show how long the bot has been online for"""
+        delta = datetime.datetime.now(datetime.timezone.utc) - self.bot.start_time
+
+        e = discord.Embed(title="**Uptime**",
+                          color=discord.Color.dark_blue(),
+                          description=format_timedelta(delta))
+        e.set_footer(text=f"Up since {format_datetime(self.bot.start_time)}")
         await ctx.send(embed=e)
 
 
